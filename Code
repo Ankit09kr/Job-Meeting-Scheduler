@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>🚀 Job & Event Scheduler</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Container for Login/Signup and Main App */
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Login/Signup Specific Styles */
+        .login-signup-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .login-signup-container h2 {
+            color: #444;
+            margin-bottom: 25px;
+        }
+
+        .login-signup-container input,
+        .login-signup-container button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: 0.3s;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .login-signup-container input:focus {
+            outline: none;
+            border-color: #0072ff;
+            box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.2);
+        }
+
+        .login-signup-container button {
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        .login-signup-container button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .switch-form-text {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .switch-form-text button {
+            background: none;
+            border: none;
+            color: #0072ff;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+            width: auto;
+            display: inline;
+            margin-bottom: 0;
+            font-size: 0.9em;
+        }
+
+        .switch-form-text button:hover {
+            opacity: 0.8;
+            transform: none;
+        }
+
+        /* Main Scheduler Layout */
+        .main {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+            width: 100%;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            flex: 1;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2, h3 {
+            color: #444;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        input, select, textarea, .main button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            transition: 0.3s;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        input[type="text"], input[type="datetime-local"], textarea, select {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #0072ff;
+            box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.2);
+        }
+
+        .main button {
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .main button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-left: 5px solid;
+        }
+
+        /* Event Type Colors */
+        .card.type-meeting { border-left-color: #4CAF50; }
+        .card.type-interview { border-left-color: #2196F3; }
+        .card.type-visit { border-left-color: #FFC107; }
+        .card.type-application { border-left-color: #9C27B0; }
+        .card.type-other { border-left-color: #607D8B; }
+
+        /* Event Status Colors */
+        .card.status-completed { background: linear-gradient(to right, #d4edda, #c3e6cb); border-color: #28a745; }
+        .card.status-cancelled { background: linear-gradient(to right, #f8d7da, #f5c6cb); border-color: #dc3545; }
+        .card.status-pending { background: linear-gradient(to right, #e2e3e5, #d6d8db); border-color: #6c757d; }
+
+        .card-content {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .card .company-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #0072ff;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .card .event-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .card small {
+            display: block;
+            color: #555;
+            font-size: 0.9em;
+            margin-top: 3px;
+        }
+
+        .card .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .card .action-buttons button {
+            background: crimson;
+            color: white;
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            width: auto;
+            margin: 0;
+        }
+
+        .card .action-buttons button.edit-btn {
+            background: #FFA500;
+        }
+
+        .card .action-buttons button.complete-btn {
+            background: #28a745;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .filter-section {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .filter-section div {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-section button {
+            margin-top: 0;
+            flex-shrink: 0;
+            width: auto;
+        }
+
+        .filter-section input, .filter-section select {
+            margin-bottom: 0;
+        }
+
+        #clearAllBtn {
+            background: #dc3545;
+            margin-top: 20px;
+        }
+
+        .logout-btn {
+            background: #6c757d;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            align-self: flex-end; /* Align to the right in the app-container */
+            display: none; /* Hidden until logged in */
+        }
+        .logout-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Hide main app content initially */
+        .main {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main {
+                flex-direction: column;
+                align-items: center;
+            }
+            .container {
+                width: 95%;
+                max-width: 500px;
+            }
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Job & Meeting Scheduler</h1>
+
+    <div class="app-container">
+        <button id="logoutButton" class="logout-btn" onclick="logout()">Logout</button>
+
+        <div class="login-signup-container" id="loginSignupContainer">
+            <div id="loginForm">
+                <h2>Login</h2>
+                <input type="text" id="loginUsername" placeholder="Username" autocomplete="username">
+                <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+                <button onclick="handleLogin()">Login</button>
+                <p class="switch-form-text">Don't have an account? <button onclick="showSignup()">Sign Up</button></p>
+            </div>
+
+            <div id="signupForm" style="display: none;">
+                <h2>Sign Up</h2>
+                <input type="text" id="signupUsername" placeholder="Choose a Username" autocomplete="new-username">
+                <input type="password" id="signupPassword" placeholder="Choose a Password" autocomplete="new-password">
+                <button onclick="handleSignup()">Sign Up</button>
+                <p class="switch-form-text">Already have an account? <button onclick="showLogin()">Login</button></p>
+            </div>
+        </div>
+
+        <div class="main" id="mainAppContent">
+            <div class="container left">
+                <h2>🗓️ Schedule Job Event</h2>
+                <label for="eventType">Event Type:</label>
+                <select id="eventType">
+                    <option value="Application">Job Application</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="Interview">Interview (New Joinee)</option>
+                    <option value="Visit">Site Visit</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <label for="eventCompany">Company Name:</label>
+                <select id="eventCompany">
+                    <option value="">Select a Company</option>
+                    <option value="Google">Google</option>
+                    <option value="Microsoft">Microsoft</option>
+                    <option value="Amazon">Amazon</option>
+                    <option value="TCS">TCS</option>
+                    <option value="Infosys">Infosys</option>
+                    <option value="Wipro">Wipro</option>
+                    <option value="Adobe">Adobe</option>
+                    <option value="Salesforce">Salesforce</option>
+                    <option value="Accenture">Accenture</option>
+                    <option value="NVIDIA">NVIDIA</option>
+                    <option value="IBM">IBM</option>
+                    <option value="Oracle">Oracle</option>
+                    <option value="Capgemini">Capgemini</option>
+                    <option value="Deloitte">Deloitte</option>
+                    <option value="HCLTech">HCLTech</option>
+                    <option value="Flipkart">Flipkart</option>
+                    <option value="TCS Digital">TCS Digital</option>
+                    <option value="Meta">Meta</option>
+                    <option value="Qualcomm">Qualcomm</option>
+                    <option value="Zoho Corp">Zoho Corp</option>
+                    <option value="Tech Mahindra">Tech Mahindra</option>
+                    <option value="Local Tech Hub">Local Tech Hub</option>
+                    <option value="NASSCOM">NASSCOM</option>
+                    <option value="Tech Solutions Inc.">Tech Solutions Inc.</option>
+                    <option value="Biotech Innovations">Biotech Innovations</option>
+                </select>
+
+                <label for="eventTitle">Event Title:</label>
+                <input type="text" id="eventTitle" placeholder="e.g., Frontend Interview, Project Sync" />
+
+                <label for="eventTime">Date and Time:</label>
+                <input type="datetime-local" id="eventTime" />
+
+                <label for="eventLocation">Location/Notes (Optional):</label>
+                <textarea id="eventLocation" placeholder="e.g., Online via Zoom, Office Room 301" rows="2"></textarea>
+
+                <label for="eventStatus">Status:</label>
+                <select id="eventStatus">
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+
+                <button onclick="addEvent()">➕ Add Event</button>
+            </div>
+
+            <div class="container right">
+                <h2>⏰ Upcoming Job Events</h2>
+
+                <div class="filter-section">
+                    <div>
+                        <label for="filterType">Filter by Type:</label>
+                        <select id="filterType" onchange="applyFilters()">
+                            <option value="">All Types</option>
+                            <option value="Application">Job Application</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Interview">Interview</option>
+                            <option value="Visit">Site Visit</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterStatus">Filter by Status:</label>
+                        <select id="filterStatus" onchange="applyFilters()">
+                            <option value="">All Statuses</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterSearch">Search Title/Company:</label>
+                        <input type="text" id="filterSearch" placeholder="e.g., Google, meeting" onkeyup="applyFilters()">
+                    </div>
+                    <button onclick="clearFilters()">Clear Filters</button>
+                </div>
+
+                <div id="eventList" style="margin-top: 10px;">
+                    <p class="no-data">No events scheduled yet. Add one from the left!</p>
+                </div>
+
+                <button id="clearAllBtn" onclick="clearAllEvents()">🗑️ Clear All Events</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        //array 
+        let events = []; // Array to store all scheduled events for the current user
+        let users = []; // Array to store registered users
+        let currentUser = null; // Stores the currently logged-in user's username
+
+        
+
+        // Shows the login form and hides the signup form
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('signupForm').style.display = 'none';
+        }
+
+        // Shows the signup form and hides the login form
+        function showSignup() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+        }
+
+        // Handles user signup
+        function handleSignup() {
+            const username = document.getElementById('signupUsername').value.trim();
+            const password = document.getElementById('signupPassword').value.trim();
+
+            if (!username || !password) {
+                alert('Please enter both username and password for signup.');
+                return;
+            }
+//Checks if username already exists ,Returns true or false,Prevents duplicate usernames
+        // linearsearch
+
+            if (users.some(user => user.username === username)) {
+                alert('Username already exists. Please choose a different one or log in.');
+                return;
+            }
+
+            // In a real application, you would hash the password before storing it.
+            users.push({ username, password });
+            localStorage.setItem('schedulerUsers', JSON.stringify(users));
+            alert('Signup successful! You can now log in.');
+            showLogin(); // Show login form after successful signup
+            document.getElementById('signupUsername').value = '';
+            document.getElementById('signupPassword').value = '';
+        }
+
+        // Handles user login
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!username || !password) {
+                alert('Please enter both username and password.');
+                return;
+            }
+
+//linear search - searches user[] array , checks username and pass and returns the matched user object
+
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                currentUser = username;
+                localStorage.setItem('currentUser', currentUser); // Store current user
+                alert(`Welcome, ${currentUser}!`);
+                document.getElementById('loginSignupContainer').style.display = 'none';
+                document.getElementById('mainAppContent').style.display = 'flex'; // Show main content
+                document.getElementById('logoutButton').style.display = 'block'; // Show logout button
+                loadEvents(); // Load events for the logged-in user
+                displayEvents();
+            } else {
+                alert('Invalid username or password.');
+            }
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        // Logs out the current user
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                events = []; // Clear events from memory when logging out
+                saveEvents(); // Save empty events to clear user-specific data
+                document.getElementById('loginSignupContainer').style.display = 'flex';
+                document.getElementById('mainAppContent').style.display = 'none'; // Hide main content
+                document.getElementById('logoutButton').style.display = 'none'; // Hide logout button
+                showLogin(); // Go back to login screen
+                document.getElementById('eventList').innerHTML = '<p class="no-data">No events scheduled yet. Add one from the left!</p>'; // Clear display
+            }
+        }
+
+        // Checks for existing authentication on page load
+        function checkAuth() {
+            const storedUsers = localStorage.getItem('schedulerUsers');
+            if (storedUsers) {
+                users = JSON.parse(storedUsers);
+            }
+
+            const storedCurrentUser = localStorage.getItem('currentUser');
+            if (storedCurrentUser && users.some(u => u.username === storedCurrentUser)) {
+                currentUser = storedCurrentUser;
+                document.getElementById('loginSignupContainer').style.display = 'none';
+                document.getElementById('mainAppContent').style.display = 'flex';
+                document.getElementById('logoutButton').style.display = 'block';
+                loadEvents(); // Load events for the previously logged-in user
+                displayEvents();
+            } else {
+                showLogin(); // If no current user or user not found, show login
+                document.getElementById('mainAppContent').style.display = 'none'; // Ensure main content is hidden
+                document.getElementById('logoutButton').style.display = 'none'; // Ensure logout button is hidden
+            }
+        }
+
+        // --- Event Management Functions (modified to be user-specific) ---
+
+        function addEvent() {
+            if (!currentUser) {
+                alert("Please log in to add events.");
+                return;
+            }
+
+            const type = document.getElementById("eventType").value;
+            const company = document.getElementById("eventCompany").value;
+            const title = document.getElementById("eventTitle").value.trim();
+            const time = document.getElementById("eventTime").value;
+            const location = document.getElementById("eventLocation").value.trim();
+            const status = document.getElementById("eventStatus").value;
+
+            if (!company || !title || !time) {
+                alert("Please select a Company, enter Event Title, and Time.");
+                return;
+            }
+           
+            // used to store 1 complete event at a time 
+            const newEvent = {
+                id: Date.now(), // Unique ID for each event
+                type,
+                company,
+                title,
+                time: new Date(time),
+                location,
+                status
+            };
+
+            events.push(newEvent);
+            saveEvents();
+            clearForm();
+            displayEvents();
+        }
+
+        function clearForm() {
+            document.getElementById("eventCompany").value = "";
+            document.getElementById("eventTitle").value = "";
+            document.getElementById("eventTime").value = "";
+            document.getElementById("eventLocation").value = "";
+            document.getElementById("eventType").value = "Application";
+            document.getElementById("eventStatus").value = "Pending";
+        }
+
+
+        // INSERTION SORT 
+
+        function insertionSortEvents(arr) {
+    for (let i = 1; i < arr.length; i++) {
+        let key = arr[i];
+        let j = i - 1;
+
+        while (j >= 0 && arr[j].time > key.time) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+
+        arr[j + 1] = key;
+    }
+}
+
+        function displayEvents() {
+            const eventList = document.getElementById("eventList");
+            eventList.innerHTML = "";
+
+            if (!currentUser) { // If not logged in, show no events message
+                eventList.innerHTML = '<p class="no-data">Please log in to view your events.</p>';
+                return;
+            }
+
+            let filteredEvents = [...events];
+
+            const filterType = document.getElementById("filterType").value;
+            if (filterType) {
+                filteredEvents = filteredEvents.filter(event => event.type === filterType);
+            }
+
+            const filterStatus = document.getElementById("filterStatus").value;
+            if (filterStatus) {
+                filteredEvents = filteredEvents.filter(event => event.status === filterStatus);
+            }
+
+            const filterSearch = document.getElementById("filterSearch").value.toLowerCase();
+            if (filterSearch) {
+                filteredEvents = filteredEvents.filter(event =>
+                    event.title.toLowerCase().includes(filterSearch) ||
+                    event.company.toLowerCase().includes(filterSearch) ||
+                    event.location.toLowerCase().includes(filterSearch)
+                );
+            }
+
+            if (filteredEvents.length === 0) {
+                eventList.innerHTML = '<p class="no-data">No events found matching your criteria.</p>';
+                return;
+            }
+
+            // CALLED INSERTION SORT
+ 
+            insertionSortEvents(filteredEvents);
+
+            filteredEvents.forEach(event => {
+                const eventTimeStr = event.time.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const div = document.createElement("div");
+                div.className = `card type-${event.type.toLowerCase()} status-${event.status.toLowerCase()}`;
+                div.innerHTML = `
+                    <div class="card-content">
+                        <span class="company-name">${event.company}</span>
+                        <span class="event-title">${event.title} (${event.type})</span>
+                        <small>📅 ${eventTimeStr}</small>
+                        ${event.location ? `<small>📍 ${event.location}</small>` : ''}
+                        <small><strong>Status:</strong> ${event.status}</small>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="edit-btn" onclick="editEvent(${event.id})">Edit</button>
+                        ${event.status !== 'Completed' ? `<button class="complete-btn" onclick="toggleEventStatus(${event.id}, 'Completed')">Complete</button>` : ''}
+                        ${event.status !== 'Cancelled' ? `<button onclick="toggleEventStatus(${event.id}, 'Cancelled')">Cancel</button>` : ''}
+                        <button onclick="removeEvent(${event.id})">Delete</button>
+                    </div>
+                `;
+                eventList.appendChild(div);
+            });
+        }
+
+        function removeEvent(id) {
+            events = events.filter(event => event.id !== id);
+            saveEvents();
+            displayEvents();
+        }
+
+        function toggleEventStatus(id, newStatus) {
+            const eventIndex = events.findIndex(event => event.id === id);
+            if (eventIndex > -1) {
+                events[eventIndex].status = newStatus;
+                saveEvents();
+                displayEvents();
+            }
+        }
+
+        function editEvent(id) {
+
+            // searches event by unique id,return the event object,used when clicking edit
+
+            const eventToEdit = events.find(event => event.id === id);
+            if (eventToEdit) {
+                document.getElementById("eventType").value = eventToEdit.type;
+                document.getElementById("eventCompany").value = eventToEdit.company;
+                document.getElementById("eventTitle").value = eventToEdit.title;
+                const date = new Date(eventToEdit.time);
+                const formattedDate = date.toISOString().slice(0, 16);
+                document.getElementById("eventTime").value = formattedDate;
+                document.getElementById("eventLocation").value = eventToEdit.location;
+                document.getElementById("eventStatus").value = eventToEdit.status;
+
+                removeEvent(id); // Remove the old event, user will re-add it with edits
+            }
+        }
+
+        function applyFilters() {
+            displayEvents();
+        }
+
+        function clearFilters() {
+            document.getElementById("filterType").value = "";
+            document.getElementById("filterStatus").value = "";
+            document.getElementById("filterSearch").value = "";
+            displayEvents();
+        }
+
+        function clearAllEvents() {
+            if (confirm("Are you sure you want to delete ALL scheduled events for the current user? This action cannot be undone.")) {
+                events = [];
+                saveEvents();
+                displayEvents();
+            }
+        }
+
+        // Save events to Local Storage, specific to the current user
+        function saveEvents() {
+            if (currentUser) {
+                localStorage.setItem(`scheduledEvents_${currentUser}`, JSON.stringify(events));
+            }
+        }
+
+        // Load events from Local Storage, specific to the current user
+        function loadEvents() {
+            if (currentUser) {
+                const storedEvents = localStorage.getItem(`scheduledEvents_${currentUser}`);
+                if (storedEvents) {
+                    events = JSON.parse(storedEvents).map(event => ({
+                        ...event,
+                        time: new Date(event.time)
+                    }));
+                } else {
+                    // No default events on initial load for a new user,
+                    // they will start with an empty schedule.
+                    events = [];
+                }
+            } else {
+                events = []; // If no user is logged in, there are no events to load
+            }
+        }
+
+        // Initial check for authentication when the page loads
+        window.onload = () => {
+            checkAuth();
+            setInterval(displayEvents, 30000); // Auto-refresh display only after login
+        };
+    </script>
+</body>
+</html>
